@@ -1,0 +1,58 @@
+missions:
+  mine_cobble:
+    enabled: true
+    name: "Mine Cobblestone"
+    type: "mine"
+    material: "COBBLESTONE"
+    goal: 100
+    money-reward: 500.0
+    item-reward:
+      material: "STONE_PICKAXE"
+      amount: 1
+    cooldown: 3600  # 1 hour in seconds
+  mine_iron:
+    enabled: true
+    name: "Mine Iron Ore"
+    type: "mine"
+    material: "IRON_ORE"
+    goal: 50
+    money-reward: 750.0
+    cooldown: 7200  # 2 hours
+  farm_wheat:
+    enabled: true
+    name: "Harvest Wheat"
+    type: "farm"
+    material: "WHEAT"
+    goal: 64
+    money-reward: 300.0
+    item-reward:
+      material: "WHEAT_SEEDS"
+      amount: 16
+    cooldown: 1800  # 30 minutes
+  kill_zombies:
+    enabled: true
+    name: "Kill Zombies"
+    type: "kill"
+    material: "ZOMBIE_HEAD"  # Entity type, not Material, but works for simplicity
+    goal: 20
+    money-reward: 400.0
+    cooldown: 3600
+  craft_ingots:
+    enabled: true
+    name: "Craft Iron Ingots"
+    type: "craft"
+    material: "IRON_INGOT"
+    goal: 10
+    money-reward: 200.0
+    cooldown: 1800
+  build_stone:
+    enabled: true
+    name: "Place Stone Bricks"
+    type: "place"
+    material: "STONE_BRICKS"
+    goal: 100
+    money-reward: 600.0
+    item-reward:
+      material: "STONE_BRICKS"
+      amount: 32
+    cooldown: 7200

@@ -1,0 +1,52 @@
+islands:
+  schematics:
+    - name: "grass"
+      description: "A small grassy platform with a tree"
+      cost: 0.0
+      icon: "GRASS_BLOCK"
+    - name: "tree_island"
+      description: "A lush island with multiple trees"
+      cost: 100.0
+      icon: "OAK_SAPLING"
+    - name: "desert_oasis"
+      description: "A sandy island with a water pool"
+      cost: 250.0
+      icon: "SAND"
+    - name: "stone_fort"
+      description: "A sturdy stone fortress in the sky"
+      cost: 500.0
+      icon: "STONE_BRICKS"
+  side-islands:
+    - name: "farm_patch"
+      description: "A small farming area"
+      cost: 500.0
+      icon: "WHEAT"
+    - name: "ore_node"
+      description: "A mining extension with ores"
+      cost: 750.0
+      icon: "IRON_ORE"
+    - name: "tree_grove"
+      description: "A cluster of trees"
+      cost: 300.0
+      icon: "OAK_LOG"
+  warps:
+    enabled: true
+    max-warps-per-island: 1
+    warp-cost: 50.0
+    allow-private: true
+  upgrades:
+    size-cost-multiplier: 1000.0
+    generator-cost-multiplier: 1500.0
+    max-size-level: 5
+    max-generator-level: 3
+  bank:
+    deposit-options:
+      - amount: 10
+        slot: 10
+      - amount: 100
+        slot: 11
+    withdraw-options:
+      - amount: 10
+        slot: 15
+      - amount: 100
+        slot: 16

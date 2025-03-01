@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="LuxSB:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/LuxSB_jar</output-path>
+    <root id="archive" name="LuxSB.jar">
+      <element id="module-output" name="LuxSB" />
+    </root>
+  </artifact>
+</component>

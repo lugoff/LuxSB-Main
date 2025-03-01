@@ -1,0 +1,23 @@
+name: LuxSB
+version: 1.0-SNAPSHOT
+main: its.lugoff.luxSB.LuxSB
+api-version: 1.21
+depend: [Vault, WorldEdit]
+description: A Skyblock plugin with islands, upgrades, shops, missions, warps, and more!
+commands:
+  island:
+    description: Manage your Skyblock island
+    usage: /<command> [invite|kick]
+    aliases: [is]
+    permission: luxsb.command.island
+  islandbank:
+    description: Manage your island bank balance
+    usage: /<command> <deposit|withdraw> <amount>
+    permission: luxsb.command.islandbank
+permissions:
+  luxsb.command.island:
+    description: Allows use of the /island command
+    default: true
+  luxsb.command.islandbank:
+    description: Allows use of the /islandbank command
+    default: true

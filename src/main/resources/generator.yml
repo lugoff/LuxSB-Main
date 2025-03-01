@@ -1,0 +1,44 @@
+generator:
+  spawn-rate-multiplier: 0.25  # Kept for reference, not used
+  ores:
+    tier1:
+      - ore: COBBLESTONE
+        weight: 5.0   # ~50% chance - default
+      - ore: COAL_ORE
+        weight: 2.5   # ~25% chance - default
+      - ore: COPPER_ORE
+        weight: 2.5   # ~25% chance - default
+    tier2:
+      - ore: COBBLESTONE
+        weight: 4.0   # ~25% chance - default
+      - ore: COAL_ORE
+        weight: 3.5   # ~22% chance - default
+      - ore: COPPER_ORE
+        weight: 3.5   # ~22% chance - default
+      - ore: IRON_ORE
+        weight: 3.0   # ~19% chance - default
+      - ore: LAPIS_ORE
+        weight: 1.5   # ~9% chance - default
+      - ore: REDSTONE_ORE
+        weight: 1.0   # ~6% chance - default
+    tier3:
+      - ore: COBBLESTONE
+        weight: 2.0   # ~10% chance - default
+      - ore: COAL_ORE
+        weight: 5.0   # ~25% chance - default
+      - ore: COPPER_ORE
+        weight: 5.0   # ~25% chance - default
+      - ore: IRON_ORE
+        weight: 4.0   # ~20% chance - default
+      - ore: LAPIS_ORE
+        weight: 1.5   # ~8% chance - default
+      - ore: REDSTONE_ORE
+        weight: 1.0   # ~5% chance - default
+      - ore: GOLD_ORE
+        weight: 1.0   # ~5% chance - default
+      - ore: DIAMOND_ORE
+        weight: 0.5   # ~3% chance - default
+      - ore: EMERALD_ORE
+        weight: 0.5   # ~3% chance - default
+      - ore: NETHER_QUARTZ_ORE
+        weight: 0.0   # 0% chance - default
