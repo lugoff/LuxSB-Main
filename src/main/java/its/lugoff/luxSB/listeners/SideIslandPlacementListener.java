@@ -32,7 +32,7 @@ public class SideIslandPlacementListener implements Listener {
         ItemStack item = event.getItem();
 
         if (item == null || item.getType() != Material.DIAMOND_HOE || !item.hasItemMeta()) return;
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
+        if (event.getAction() != Action.LEFT_CLICK_BLOCK && event.getAction() != Action.RIGHT_CLICK_BLOCK) return; // Support both clicks
 
         ItemMeta meta = item.getItemMeta();
         if (!meta.getPersistentDataContainer().has(new NamespacedKey(plugin, "side_island"), PersistentDataType.STRING)) return;
@@ -49,13 +49,21 @@ public class SideIslandPlacementListener implements Listener {
         File schematicFile = new File(plugin.getDataFolder(), "schematics/" + schematicName + ".schem");
 
         if (schematicFile.exists()) {
-            SchematicLoader.loadSchematic(schematicName, spawnLocation);
-            island.setSize(island.getSize() + 20); // Adjust size as needed
-            plugin.getIslandManager().saveIsland(island);
-            player.getInventory().removeItem(item);
-            player.sendMessage(ChatColor.GREEN + "Side island '" + schematicName.replace("_", " ") + "' placed successfully!");
+            plugin.getLogger().info("Attempting to load schematic '" + schematicName + "' at " + spawnLocation.toString());
+            boolean loaded = SchematicLoader.loadSchematic(schematicName, spawnLocation);
+            if (loaded) {
+                island.setSize(island.getSize() + 20); // Adjust size as needed
+                plugin.getIslandManager().saveIsland(island);
+                player.getInventory().removeItem(item);
+                player.sendMessage(ChatColor.GREEN + "Side island '" + schematicName.replace("_", " ") + "' placed successfully!");
+                plugin.getLogger().info("Successfully loaded schematic '" + schematicName + "'");
+            } else {
+                player.sendMessage(ChatColor.RED + "Failed to load side island schematic '" + schematicName + "'!");
+                plugin.getLogger().warning("Schematic loading failed for '" + schematicName + "'");
+            }
         } else {
             player.sendMessage(ChatColor.RED + "Side island schematic '" + schematicName + "' not found!");
+            plugin.getLogger().warning("Schematic file not found: " + schematicFile.getPath());
         }
 
         event.setCancelled(true); // Prevent hoe usage

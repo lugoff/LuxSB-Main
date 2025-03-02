@@ -19,20 +19,20 @@ import java.io.IOException;
 
 public class SchematicLoader {
 
-    public static void loadSchematic(String schematicName, Location center) {
+    public static boolean loadSchematic(String schematicName, Location center) {
         LuxSB plugin = LuxSB.getPlugin(LuxSB.class);
         File schematicFile = new File(plugin.getDataFolder(), "schematics/" + schematicName + ".schem");
 
         if (!schematicFile.exists()) {
             plugin.getLogger().warning("Schematic file not found: " + schematicFile.getAbsolutePath());
-            return;
+            return false;
         }
 
         try (FileInputStream fis = new FileInputStream(schematicFile)) {
             ClipboardFormat format = ClipboardFormats.findByFile(schematicFile);
             if (format == null) {
                 plugin.getLogger().warning("Unknown schematic format for: " + schematicName);
-                return;
+                return false;
             }
             Clipboard clipboard = format.getReader(fis).read();
             ClipboardHolder holder = new ClipboardHolder(clipboard);
@@ -46,10 +46,12 @@ public class SchematicLoader {
                         .build();
                 Operations.complete(operation);
                 plugin.getLogger().info("Loaded schematic '" + schematicName + "' at " + center.toString());
+                return true; // Success
             }
         } catch (IOException | com.sk89q.worldedit.WorldEditException e) {
             plugin.getLogger().severe("Failed to load schematic '" + schematicName + "': " + e.getMessage());
             e.printStackTrace();
+            return false; // Failure
         }
     }
 }

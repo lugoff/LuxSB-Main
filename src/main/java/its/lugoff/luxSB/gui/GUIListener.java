@@ -205,12 +205,12 @@ public class GUIListener implements Listener {
                         ItemMeta meta = placementHoe.getItemMeta();
                         if (meta != null) {
                             meta.setDisplayName(ChatColor.AQUA + "Side Island Placer: " + displayName);
-                            meta.setLore(Arrays.asList(ChatColor.GRAY + "Right-click a block to place " + displayName));
+                            meta.setLore(Arrays.asList(ChatColor.GRAY + "Left-click a block to place " + displayName));
                             meta.getPersistentDataContainer().set(new NamespacedKey(plugin, "side_island"), PersistentDataType.STRING, sideName);
                             placementHoe.setItemMeta(meta);
                         }
                         player.getInventory().addItem(placementHoe);
-                        player.sendMessage(ChatColor.GREEN + "Purchased " + itemName + "! Use the hoe to place it.");
+                        player.sendMessage(ChatColor.GREEN + "Purchased " + itemName + "! Left-click a block to place it.");
                         player.closeInventory();
                         break;
                     }
@@ -219,34 +219,32 @@ public class GUIListener implements Listener {
         } else if (title.equals(ChatColor.GREEN + "✦ Boosts ✦")) {
             if (itemName.equals(backButtonName)) {
                 islandGUI.openGUI(player);
-            } else {
-                FileConfiguration config = plugin.getConfig("boosts.yml");
-                ConfigurationSection boostsSection = config.getConfigurationSection("boosts");
-                if (boostsSection != null) {
-                    for (String boostKey : boostsSection.getKeys(false)) {
-                        String boostName = boostsSection.getString(boostKey + ".name");
-                        if (itemName.equals(boostName)) {
-                            double cost = boostsSection.getDouble(boostKey + ".cost", 0.0);
-                            long duration = boostsSection.getLong(boostKey + ".duration");
-
-                            if (plugin.getBoostManager().isBoostActive(player.getUniqueId(), boostKey)) {
-                                player.sendMessage(ChatColor.RED + "This boost is already active!");
-                                return;
-                            }
-
-                            if (cost > 0 && !plugin.getEconomyManager().withdrawPlayer(player, cost)) {
-                                player.sendMessage(ChatColor.RED + "You need $" + String.format("%.2f", cost) + " to activate this boost!");
-                                player.closeInventory();
-                                return;
-                            }
-
-                            plugin.getBoostManager().activateBoost(player.getUniqueId(), boostKey);
-                            player.sendMessage(ChatColor.GREEN + "Activated " + boostName + " for " + (duration / 60) + " minutes!");
-                            player.closeInventory();
-                            break;
-                        }
-                    }
+            } else if (itemName.equals("2x Sell Multiplier")) {
+                if (plugin.getBoostManager().isBoostActive(player.getUniqueId(), "sell_multiplier")) {
+                    player.sendMessage(ChatColor.RED + "This boost is already active!");
+                    return;
                 }
+                if (!plugin.removeHeadTokens(player.getUniqueId(), 250)) {
+                    player.sendMessage(ChatColor.RED + "You need 250 Head Tokens to activate this boost!");
+                    player.closeInventory();
+                    return;
+                }
+                plugin.getBoostManager().activateBoost(player.getUniqueId(), "sell_multiplier");
+                player.sendMessage(ChatColor.GREEN + "Activated 2x Sell Multiplier for 30 minutes!");
+                player.closeInventory();
+            } else if (itemName.equals("2x XP Multiplier")) {
+                if (plugin.getBoostManager().isBoostActive(player.getUniqueId(), "xp_multiplier")) {
+                    player.sendMessage(ChatColor.RED + "This boost is already active!");
+                    return;
+                }
+                if (!plugin.removeHeadTokens(player.getUniqueId(), 250)) {
+                    player.sendMessage(ChatColor.RED + "You need 250 Head Tokens to activate this boost!");
+                    player.closeInventory();
+                    return;
+                }
+                plugin.getBoostManager().activateBoost(player.getUniqueId(), "xp_multiplier");
+                player.sendMessage(ChatColor.GREEN + "Activated 2x XP Multiplier for 30 minutes!");
+                player.closeInventory();
             }
         } else if (title.equals(warpsTitle)) {
             if (itemName.equals("Set Warp") && island != null) {
@@ -430,12 +428,13 @@ public class GUIListener implements Listener {
                             } else if (event.getClick() == ClickType.RIGHT && sellPrice > 0) {
                                 ItemStack toSell = new ItemStack(material, amount);
                                 if (player.getInventory().containsAtLeast(toSell, amount)) {
+                                    double boostedSellPrice = plugin.getBoostManager().isBoostActive(player.getUniqueId(), "sell_multiplier") ? sellPrice * 2 : sellPrice;
                                     player.getInventory().removeItem(toSell);
                                     if (island != null) {
-                                        island.setBalance(island.getBalance() + sellPrice);
+                                        island.setBalance(island.getBalance() + boostedSellPrice);
                                         plugin.getIslandManager().saveIsland(island);
                                     }
-                                    player.sendMessage(ChatColor.GREEN + "Sold " + amount + " " + material.name().toLowerCase() + " for $" + String.format("%.2f", sellPrice));
+                                    player.sendMessage(ChatColor.GREEN + "Sold " + amount + " " + material.name().toLowerCase() + " for $" + String.format("%.2f", boostedSellPrice));
                                 } else {
                                     player.sendMessage(ChatColor.RED + "You don’t have " + amount + " " + material.name().toLowerCase() + " to sell!");
                                 }

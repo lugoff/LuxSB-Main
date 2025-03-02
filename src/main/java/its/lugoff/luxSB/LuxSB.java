@@ -8,11 +8,7 @@ import its.lugoff.luxSB.gui.BankGUI;
 import its.lugoff.luxSB.gui.GUIListener;
 import its.lugoff.luxSB.island.Island;
 import its.lugoff.luxSB.island.IslandManager;
-import its.lugoff.luxSB.listeners.GeneratorListener;
-import its.lugoff.luxSB.listeners.HeadTokenListener;
-import its.lugoff.luxSB.listeners.MovementListener;
-import its.lugoff.luxSB.listeners.PlayerDeathListener;
-import its.lugoff.luxSB.listeners.SideIslandPlacementListener;
+import its.lugoff.luxSB.listeners.*;
 import its.lugoff.luxSB.missions.MissionManager;
 import its.lugoff.luxSB.team.TeamManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -30,7 +26,9 @@ public class LuxSB extends JavaPlugin {
     private DataManager dataManager;
     private BankGUI bankGUI;
     private Map<UUID, Integer> headTokens;
-    private BoostManager boostManager; // Added BoostManager
+    private BoostManager boostManager;
+    private Map<UUID, Integer> playerKills; // Tracks kills
+    private Map<UUID, Integer> playerDeaths; // Tracks deaths
 
     @Override
     public void onEnable() {
@@ -41,7 +39,9 @@ public class LuxSB extends JavaPlugin {
         dataManager = new DataManager(this);
         bankGUI = new BankGUI(this);
         headTokens = new HashMap<>();
-        boostManager = new BoostManager(this); // Initialize BoostManager
+        boostManager = new BoostManager(this);
+        playerKills = new HashMap<>();
+        playerDeaths = new HashMap<>();
 
         getCommand("island").setExecutor(new IslandCommand(this));
         getCommand("islandbank").setExecutor(new IslandBankCommand(this));
@@ -51,6 +51,8 @@ public class LuxSB extends JavaPlugin {
         new PlayerDeathListener(this);
         new SideIslandPlacementListener(this);
         new HeadTokenListener(this);
+        new PlayerQuitListener(this);
+        new PlayerHeadListener(this); // New listener for Player Heads
 
         File schematicsDir = new File(getDataFolder(), "schematics");
         if (!schematicsDir.exists()) {
@@ -64,7 +66,7 @@ public class LuxSB extends JavaPlugin {
         saveConfigIfNotExists("missions.yml");
         saveConfigIfNotExists("shops.yml");
         saveConfigIfNotExists("gui.yml");
-        saveConfigIfNotExists("boosts.yml"); // Add boosts.yml
+        saveConfigIfNotExists("boosts.yml");
 
         getLogger().info("LuxSB has been enabled!");
     }
@@ -83,7 +85,7 @@ public class LuxSB extends JavaPlugin {
     public TeamManager getTeamManager() { return teamManager; }
     public DataManager getDataManager() { return dataManager; }
     public BankGUI getBankGUI() { return bankGUI; }
-    public BoostManager getBoostManager() { return boostManager; } // Add getter
+    public BoostManager getBoostManager() { return boostManager; }
 
     public int getHeadTokens(UUID playerUUID) {
         return headTokens.getOrDefault(playerUUID, 0);
@@ -100,6 +102,22 @@ public class LuxSB extends JavaPlugin {
             return true;
         }
         return false;
+    }
+
+    public int getPlayerKills(UUID playerUUID) {
+        return playerKills.getOrDefault(playerUUID, 0);
+    }
+
+    public void addPlayerKills(UUID playerUUID, int amount) {
+        playerKills.put(playerUUID, getPlayerKills(playerUUID) + amount);
+    }
+
+    public int getPlayerDeaths(UUID playerUUID) {
+        return playerDeaths.getOrDefault(playerUUID, 0);
+    }
+
+    public void addPlayerDeaths(UUID playerUUID, int amount) {
+        playerDeaths.put(playerUUID, getPlayerDeaths(playerUUID) + amount);
     }
 
     public FileConfiguration getConfig(String fileName) {
