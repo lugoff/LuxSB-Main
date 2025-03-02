@@ -46,12 +46,12 @@ public class MissionManager implements Listener {
             String name = missionData.getString("name", key);
             String type = missionData.getString("type", "mine");
             Material material = null;
-            if (!type.equals("kill")) { // Skip material for "kill" missions
+            if (!type.equals("kill")) {
                 String materialStr = missionData.getString("material", "COBBLESTONE");
                 material = Material.getMaterial(materialStr.toUpperCase());
                 if (material == null) {
                     plugin.getLogger().warning("Invalid material for mission '" + key + "': " + materialStr);
-                    continue; // Skip invalid missions
+                    continue;
                 }
             }
             int goal = missionData.getInt("goal", 1);
@@ -136,11 +136,9 @@ public class MissionManager implements Listener {
         for (Map.Entry<Mission, Integer> entry : progress.entrySet()) {
             Mission mission = entry.getKey();
             if (mission.getType().equals("kill")) {
-                // Check entity type directly instead of material proxy
                 if (mission.getName().equalsIgnoreCase("kill_zombies") && event.getEntityType() == EntityType.ZOMBIE) {
                     updateProgress(killer, mission, entry.getValue() + 1);
                 }
-                // Add more kill mission types here as needed (e.g., "kill_skeletons" -> EntityType.SKELETON)
             }
         }
     }
@@ -183,9 +181,10 @@ public class MissionManager implements Listener {
         player.sendMessage(ChatColor.YELLOW + mission.getName() + ": " + newProgress + "/" + mission.getGoal());
 
         if (newProgress >= mission.getGoal()) {
-            plugin.getEconomyManager().depositPlayer(player, mission.getMoneyReward());
+            double boostedReward = mission.getMoneyReward() * plugin.getBoostManager().getBoostMultiplier(uuid, "money_boost");
+            plugin.getEconomyManager().depositPlayer(player, boostedReward);
             if (mission.getItemReward() != null) player.getInventory().addItem(mission.getItemReward());
-            player.sendMessage(ChatColor.GREEN + "Mission completed: " + mission.getName() + "! Reward: $" + mission.getMoneyReward() +
+            player.sendMessage(ChatColor.GREEN + "Mission completed: " + mission.getName() + "! Reward: $" + String.format("%.2f", boostedReward) +
                     (mission.getItemReward() != null ? " + " + mission.getItemReward().getAmount() + " " + mission.getItemReward().getType().name().toLowerCase() : ""));
             progress.remove(mission);
             playerCooldowns.computeIfAbsent(uuid, k -> new HashMap<>()).put(mission.getName(), System.currentTimeMillis() / 1000);

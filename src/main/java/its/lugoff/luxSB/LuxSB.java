@@ -9,10 +9,10 @@ import its.lugoff.luxSB.gui.GUIListener;
 import its.lugoff.luxSB.island.Island;
 import its.lugoff.luxSB.island.IslandManager;
 import its.lugoff.luxSB.listeners.GeneratorListener;
+import its.lugoff.luxSB.listeners.HeadTokenListener;
 import its.lugoff.luxSB.listeners.MovementListener;
 import its.lugoff.luxSB.listeners.PlayerDeathListener;
 import its.lugoff.luxSB.listeners.SideIslandPlacementListener;
-import its.lugoff.luxSB.listeners.HeadTokenListener; // Add this import
 import its.lugoff.luxSB.missions.MissionManager;
 import its.lugoff.luxSB.team.TeamManager;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -29,7 +29,8 @@ public class LuxSB extends JavaPlugin {
     private TeamManager teamManager;
     private DataManager dataManager;
     private BankGUI bankGUI;
-    private Map<UUID, Integer> headTokens; // Add head tokens map
+    private Map<UUID, Integer> headTokens;
+    private BoostManager boostManager; // Added BoostManager
 
     @Override
     public void onEnable() {
@@ -39,7 +40,8 @@ public class LuxSB extends JavaPlugin {
         teamManager = new TeamManager(this);
         dataManager = new DataManager(this);
         bankGUI = new BankGUI(this);
-        headTokens = new HashMap<>(); // Initialize head tokens
+        headTokens = new HashMap<>();
+        boostManager = new BoostManager(this); // Initialize BoostManager
 
         getCommand("island").setExecutor(new IslandCommand(this));
         getCommand("islandbank").setExecutor(new IslandBankCommand(this));
@@ -48,7 +50,7 @@ public class LuxSB extends JavaPlugin {
         new MovementListener(this);
         new PlayerDeathListener(this);
         new SideIslandPlacementListener(this);
-        new HeadTokenListener(this); // Register new listener
+        new HeadTokenListener(this);
 
         File schematicsDir = new File(getDataFolder(), "schematics");
         if (!schematicsDir.exists()) {
@@ -62,6 +64,7 @@ public class LuxSB extends JavaPlugin {
         saveConfigIfNotExists("missions.yml");
         saveConfigIfNotExists("shops.yml");
         saveConfigIfNotExists("gui.yml");
+        saveConfigIfNotExists("boosts.yml"); // Add boosts.yml
 
         getLogger().info("LuxSB has been enabled!");
     }
@@ -74,15 +77,14 @@ public class LuxSB extends JavaPlugin {
         getLogger().info("LuxSB has been disabled!");
     }
 
-    // Existing getters...
     public IslandManager getIslandManager() { return islandManager; }
     public MissionManager getMissionManager() { return missionManager; }
     public EconomyManager getEconomyManager() { return economyManager; }
     public TeamManager getTeamManager() { return teamManager; }
     public DataManager getDataManager() { return dataManager; }
     public BankGUI getBankGUI() { return bankGUI; }
+    public BoostManager getBoostManager() { return boostManager; } // Add getter
 
-    // Add head tokens methods
     public int getHeadTokens(UUID playerUUID) {
         return headTokens.getOrDefault(playerUUID, 0);
     }

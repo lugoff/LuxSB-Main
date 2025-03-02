@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration; // Added missing import
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,7 +31,7 @@ public class GUIListener implements Listener {
     private final MissionsGUI missionsGUI;
     private final ShopsGUI shopsGUI;
     private final IslandGUI islandGUI;
-    private final HeadShopGUI headShopGUI;
+    private final BoostsGUI boostsGUI;
 
     public GUIListener(LuxSB plugin) {
         this.plugin = plugin;
@@ -40,7 +40,7 @@ public class GUIListener implements Listener {
         this.missionsGUI = new MissionsGUI(plugin);
         this.shopsGUI = new ShopsGUI(plugin);
         this.islandGUI = new IslandGUI(plugin);
-        this.headShopGUI = new HeadShopGUI(plugin);
+        this.boostsGUI = new BoostsGUI(plugin);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -147,8 +147,8 @@ public class GUIListener implements Listener {
                 }
             } else if (itemName.equals("Side Islands")) {
                 islandGUI.openSideIslandsGUI(player);
-            } else if (itemName.equals("Head Shop")) {
-                headShopGUI.openGUI(player);
+            } else if (itemName.equals("Boosts")) {
+                boostsGUI.openGUI(player);
             }
         } else if (title.equals(schematicTitle)) {
             if (itemName.equals(backButtonName)) {
@@ -216,40 +216,35 @@ public class GUIListener implements Listener {
                     }
                 }
             }
-        } else if (title.equals(ChatColor.DARK_PURPLE + "✦ Head Shop ✦")) {
+        } else if (title.equals(ChatColor.GREEN + "✦ Boosts ✦")) {
             if (itemName.equals(backButtonName)) {
                 islandGUI.openGUI(player);
             } else {
-                FileConfiguration config = plugin.getConfig("shops.yml");
-                List<Map<?, ?>> heads = config.getMapList("shops.head-shop.items");
-                for (Map<?, ?> head : heads) {
-                    String displayName = (String) head.get("display-name");
-                    if (itemName.equals(displayName)) {
-                        int tokenBuyCost = head.containsKey("token-buy-cost") ? ((Number) head.get("token-buy-cost")).intValue() : 0;
-                        int tokenSellCost = head.containsKey("token-sell-cost") ? ((Number) head.get("token-sell-cost")).intValue() : 0;
-                        Material material = Material.getMaterial((String) head.get("material"));
+                FileConfiguration config = plugin.getConfig("boosts.yml");
+                ConfigurationSection boostsSection = config.getConfigurationSection("boosts");
+                if (boostsSection != null) {
+                    for (String boostKey : boostsSection.getKeys(false)) {
+                        String boostName = boostsSection.getString(boostKey + ".name");
+                        if (itemName.equals(boostName)) {
+                            double cost = boostsSection.getDouble(boostKey + ".cost", 0.0);
+                            long duration = boostsSection.getLong(boostKey + ".duration");
 
-                        if (event.getClick() == ClickType.LEFT && tokenBuyCost > 0) {
-                            if (plugin.removeHeadTokens(player.getUniqueId(), tokenBuyCost)) {
-                                ItemStack headItem = new ItemStack(material);
-                                player.getInventory().addItem(headItem);
-                                player.sendMessage(ChatColor.GREEN + "Purchased " + itemName + " for " + tokenBuyCost + " Head Tokens!");
-                                player.closeInventory();
-                            } else {
-                                player.sendMessage(ChatColor.RED + "You need " + tokenBuyCost + " Head Tokens to buy " + itemName + "!");
+                            if (plugin.getBoostManager().isBoostActive(player.getUniqueId(), boostKey)) {
+                                player.sendMessage(ChatColor.RED + "This boost is already active!");
+                                return;
                             }
-                        } else if (event.getClick() == ClickType.RIGHT && tokenSellCost > 0) {
-                            ItemStack toSell = new ItemStack(material);
-                            if (player.getInventory().containsAtLeast(toSell, 1)) {
-                                player.getInventory().removeItem(toSell);
-                                plugin.addHeadTokens(player.getUniqueId(), tokenSellCost);
-                                player.sendMessage(ChatColor.GREEN + "Sold " + itemName + " for " + tokenSellCost + " Head Tokens!");
+
+                            if (cost > 0 && !plugin.getEconomyManager().withdrawPlayer(player, cost)) {
+                                player.sendMessage(ChatColor.RED + "You need $" + String.format("%.2f", cost) + " to activate this boost!");
                                 player.closeInventory();
-                            } else {
-                                player.sendMessage(ChatColor.RED + "You don’t have a " + itemName + " to sell!");
+                                return;
                             }
+
+                            plugin.getBoostManager().activateBoost(player.getUniqueId(), boostKey);
+                            player.sendMessage(ChatColor.GREEN + "Activated " + boostName + " for " + (duration / 60) + " minutes!");
+                            player.closeInventory();
+                            break;
                         }
-                        break;
                     }
                 }
             }
@@ -535,6 +530,6 @@ public class GUIListener implements Listener {
                 title.startsWith(ChatColor.GREEN + "✦ Island Shops - ") ||
                 title.equals(bankTitle) ||
                 title.equals(ChatColor.AQUA + "✦ Side Islands ✦") ||
-                title.equals(ChatColor.DARK_PURPLE + "✦ Head Shop ✦");
+                title.equals(ChatColor.GREEN + "✦ Boosts ✦");
     }
 }

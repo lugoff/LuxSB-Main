@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.WorldCreator; // Added missing import
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 
@@ -133,7 +133,9 @@ public class IslandManager {
         public ChunkData generateChunkData(World world, Random random, int x, int z, BiomeGrid biome) {
             ChunkData chunk = createChunkData(world);
             for (Island island : islandManager.getIslands().values()) {
-                double rate = island.getUpgrades().getGeneratorRate();
+                double baseRate = island.getUpgrades().getGeneratorRate();
+                double boostMultiplier = islandManager.plugin.getBoostManager().getBoostMultiplier(island.getOwner(), "generator_boost");
+                double rate = baseRate * boostMultiplier;
                 if (random.nextDouble() < rate) {
                     int blockX = x * 16 + random.nextInt(16);
                     int blockZ = z * 16 + random.nextInt(16);

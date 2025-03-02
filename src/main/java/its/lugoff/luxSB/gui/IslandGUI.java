@@ -30,12 +30,11 @@ public class IslandGUI {
     public void openGUI(Player player) {
         Island island = islandManager.getIsland(player.getUniqueId());
         FileConfiguration guiConfig = plugin.getConfig("gui.yml");
-        int size = guiConfig.getInt("island-menu.size", 54);
+        int size = 54;
         String title = ChatColor.translateAlternateColorCodes('&', guiConfig.getString("island-menu.title", "&3✦ LuxSB Island Menu ✦"));
         Inventory gui = Bukkit.createInventory(player, size, title);
 
-        ItemStack border = createItem(Material.getMaterial(guiConfig.getString("general.border-material", "CYAN_STAINED_GLASS_PANE")),
-                ChatColor.translateAlternateColorCodes('&', guiConfig.getString("general.border-name", "&7 ")));
+        ItemStack border = createItem(Material.CYAN_STAINED_GLASS_PANE, ChatColor.GRAY + " ");
         for (int i : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 26, 27, 35, 36, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53}) {
             gui.setItem(i, border);
         }
@@ -43,35 +42,37 @@ public class IslandGUI {
         if (island == null) {
             openSchematicSelectionGUI(player);
         } else {
-            gui.setItem(guiConfig.getInt("island-menu.slots.home", 10), createItem(Material.COMPASS, ChatColor.GREEN + "Home",
+            gui.setItem(10, createItem(Material.COMPASS, ChatColor.GREEN + "Home",
                     ChatColor.GRAY + "Teleport to your island",
                     ChatColor.YELLOW + "Location: " + formatLocation(island.getCenter())));
-            gui.setItem(guiConfig.getInt("island-menu.slots.members", 12), createItem(Material.PLAYER_HEAD, ChatColor.YELLOW + "Members",
+            gui.setItem(12, createItem(Material.PLAYER_HEAD, ChatColor.YELLOW + "Members",
                     ChatColor.GRAY + "Manage your island team",
                     ChatColor.YELLOW + "Members: " + island.getMembers().size()));
-            gui.setItem(guiConfig.getInt("island-menu.slots.upgrades", 14), createItem(Material.ANVIL, ChatColor.AQUA + "Upgrades",
+            gui.setItem(14, createItem(Material.ANVIL, ChatColor.AQUA + "Upgrades",
                     ChatColor.GRAY + "Enhance your island",
                     ChatColor.YELLOW + "Size: " + island.getUpgrades().getSizeLevel(),
                     ChatColor.YELLOW + "Generator: " + island.getUpgrades().getGeneratorLevel()));
-            gui.setItem(guiConfig.getInt("island-menu.slots.warps", 16), createItem(Material.END_PORTAL_FRAME, ChatColor.LIGHT_PURPLE + "Warps",
+            gui.setItem(16, createItem(Material.END_PORTAL_FRAME, ChatColor.LIGHT_PURPLE + "Warps",
                     ChatColor.GRAY + "Manage and visit warps"));
-            gui.setItem(guiConfig.getInt("island-menu.slots.bank", 28), createItem(Material.GOLD_INGOT, ChatColor.GOLD + "Island Bank",
+
+            gui.setItem(19, createItem(Material.GOLD_INGOT, ChatColor.GOLD + "Island Bank",
                     ChatColor.GRAY + "Manage your funds",
                     ChatColor.YELLOW + "Balance: $" + String.format("%.2f", island.getBalance())));
-            gui.setItem(guiConfig.getInt("island-menu.slots.missions", 30), createItem(Material.BOOK, ChatColor.LIGHT_PURPLE + "Missions",
+            gui.setItem(21, createItem(Material.BOOK, ChatColor.LIGHT_PURPLE + "Missions",
                     ChatColor.GRAY + "View available missions"));
-            gui.setItem(guiConfig.getInt("island-menu.slots.shops", 32), createItem(Material.EMERALD, ChatColor.GREEN + "Shops",
+            gui.setItem(23, createItem(Material.EMERALD, ChatColor.GREEN + "Shops",
                     ChatColor.GRAY + "Buy and sell items"));
-            gui.setItem(guiConfig.getInt("island-menu.slots.shared-islands", 34), createItem(Material.NAME_TAG, ChatColor.YELLOW + "Shared Islands",
+            gui.setItem(25, createItem(Material.NAME_TAG, ChatColor.YELLOW + "Shared Islands",
                     ChatColor.GRAY + "View islands you’re invited to"));
-            gui.setItem(guiConfig.getInt("island-menu.slots.delete", 49), createItem(Material.TNT, ChatColor.RED + "Delete Island",
+
+            gui.setItem(28, createItem(Material.GRASS_BLOCK, ChatColor.AQUA + "Side Islands",
+                    ChatColor.GRAY + "Purchase extensions for your island"));
+            gui.setItem(30, createItem(Material.EXPERIENCE_BOTTLE, ChatColor.GREEN + "Boosts",
+                    ChatColor.GRAY + "Activate temporary enhancements"));
+            gui.setItem(34, createItem(Material.TNT, ChatColor.RED + "Delete Island",
                     ChatColor.GRAY + "Permanently remove your island",
                     ChatColor.YELLOW + "Refunds: $" + String.format("%.2f", island.getBalance())));
-            gui.setItem(22, createItem(Material.QUARTZ_PILLAR, ChatColor.AQUA + "Side Islands",
-                    ChatColor.GRAY + "Purchase extensions for your island"));
-            gui.setItem(24, createItem(Material.SKELETON_SKULL, ChatColor.DARK_PURPLE + "Head Shop",
-                    ChatColor.GRAY + "Buy decorative heads",
-                    ChatColor.YELLOW + "Tokens: " + plugin.getHeadTokens(player.getUniqueId())));
+
             player.openInventory(gui);
         }
     }
@@ -118,36 +119,37 @@ public class IslandGUI {
         Island island = islandManager.getIsland(player.getUniqueId());
         if (island == null) {
             player.sendMessage(ChatColor.RED + "You need an island to purchase side islands!");
+            player.closeInventory();
             return;
         }
 
-        FileConfiguration guiConfig = plugin.getConfig("gui.yml");
-        int size = 36;
+        int size = 27; // Smaller symmetrical GUI
         String title = ChatColor.AQUA + "✦ Side Islands ✦";
         Inventory gui = Bukkit.createInventory(player, size, title);
 
         ItemStack border = createItem(Material.CYAN_STAINED_GLASS_PANE, ChatColor.GRAY + " ");
-        for (int i = 0; i < 9; i++) gui.setItem(i, border);
-        for (int i = size - 9; i < size; i++) gui.setItem(i, border);
+        for (int i : new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26}) {
+            gui.setItem(i, border);
+        }
 
         List<Map<?, ?>> sideIslands = plugin.getConfig().getMapList("islands.side-islands");
-        int[] slots = {10, 12, 14, 16};
+        int[] slots = {10, 12, 14, 16}; // 4 centered slots
         int index = 0;
         for (Map<?, ?> sideIsland : sideIslands) {
             if (index >= slots.length) break;
             String name = (String) sideIsland.get("name");
-            String description = sideIsland.containsKey("description") ? (String) sideIsland.get("description") : "A side island extension";
+            String displayName = name.replace("_", " ");
             double cost = sideIsland.containsKey("cost") ? ((Number) sideIsland.get("cost")).doubleValue() : 0.0;
             String iconStr = sideIsland.containsKey("icon") ? (String) sideIsland.get("icon") : "STONE";
             Material icon = Material.getMaterial(iconStr) != null ? Material.getMaterial(iconStr) : Material.STONE;
 
-            gui.setItem(slots[index++], createItem(icon, ChatColor.AQUA + name.replace("_", " "),
-                    ChatColor.GRAY + description,
+            gui.setItem(slots[index++], createItem(icon, ChatColor.AQUA + displayName,
+                    ChatColor.GRAY + "Add to your island",
                     ChatColor.YELLOW + "Cost: $" + String.format("%.2f", cost),
-                    ChatColor.GRAY + "Click to purchase and add to your island"));
+                    ChatColor.GRAY + "Click to purchase"));
         }
 
-        gui.setItem(31, createItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "Back",
+        gui.setItem(22, createItem(Material.RED_STAINED_GLASS_PANE, ChatColor.RED + "Back",
                 ChatColor.GRAY + "Return to Island Menu"));
         player.openInventory(gui);
     }
